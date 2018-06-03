@@ -6,7 +6,7 @@ import torch.nn as nn
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
-
+# нелинейная функция для перевода угла из градусов - в число от 0 до 1
 def norm_angle(angle):
     norm_angle = sigmoid(10 * (abs(angle) / 45.0 - 1))
     return norm_angle

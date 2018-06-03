@@ -34,17 +34,23 @@ def main():
 
     data = load_feat(feat_file)
     data = np.vstack(data)
+
+    #Create model - DREAM-block - Branch
     model = Branch(feat_dim=256)
     model.cuda()
+
     criterion = nn.MSELoss().cuda()
     optimizer = torch.optim.SGD(model.parameters(), args.lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
+    #Model Train
     model.train()
     losses = AverageMeter()
     for iter in range(args.iters):
+        #генерация батча для обучения
         batch_train_feat, batch_target_feat, batch_norm_angle = gen_batch(train_map, data, args.batch_size,
                                                                           args.feat_len)
+        #загрузка данных на куду
         batch_train_feat = torch.autograd.Variable(torch.from_numpy(batch_train_feat.astype(np.float32))).cuda()
         batch_norm_angle = torch.autograd.Variable(torch.from_numpy(batch_norm_angle.astype(np.float32))).cuda()
         batch_target_feat = torch.autograd.Variable(torch.from_numpy(batch_target_feat.astype(np.float32))).cuda()
@@ -60,8 +66,7 @@ def main():
 
         if iter % args.print_freq == 0:
             print('Iter: [{0}/{1}]\t'
-                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
-                iter, args.iters, loss=losses))
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(iter, args.iters, loss=losses))
 
     torch.save({'state_dict': model.state_dict()}, 'checkpoint.pth')
 
