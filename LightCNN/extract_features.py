@@ -68,6 +68,10 @@ def main():
     for img_name in img_list:
         count = count + 1
         img = cv2.imread(os.path.join(args.root_path, img_name), cv2.IMREAD_GRAYSCALE)
+        print(os.path.join(args.root_path, img_name))
+        if img is not None:
+            print("HELP ME")
+        img = cv2.resize(img, (128, 128), interpolation = cv2.INTER_AREA)
         img = np.reshape(img, (128, 128, 1))
         img = transform(img)
         input[0, :, :, :] = img
