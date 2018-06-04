@@ -73,7 +73,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     caffe_crop = CaffeCrop('test')
-    val_list_file = '/home/u0060/Datasets/msceleb_subset/test_list.txt'
+    val_list_file = '/home/u0060/Datasets/msceleb_subset/img_list.txt'
     val_label_file = '/home/u0060/Datasets/msceleb_subset/test_label.txt'
     val_dataset = MsCelebDataset(args.img_dir, val_list_file, val_label_file,
                                  transforms.Compose([caffe_crop, transforms.ToTensor()]))

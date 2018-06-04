@@ -24,7 +24,7 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='LightCNN')
 parser.add_argument('--cuda', '-c', default=True)
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
-parser.add_argument('--model', default='', type=str, metavar='Model',
+parser.add_argument('--model', default='LightCNN-29v2', type=str, metavar='Model',
                     help='model type: LightCNN-9, LightCNN-29')
 parser.add_argument('--root_path', default='', type=str, metavar='PATH',
                     help='root path of face images (default: none).')
