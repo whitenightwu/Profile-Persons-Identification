@@ -107,3 +107,7 @@ ENV/
 
 *.tar
 LightCNN/face_verification_experiment-master/
+
+MTCNN_face_detection_alignment/
+
+ppgn-master/
