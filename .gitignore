@@ -106,3 +106,4 @@ ENV/
 \.idea/
 
 *.tar
+LightCNN/face_verification_experiment-master/
