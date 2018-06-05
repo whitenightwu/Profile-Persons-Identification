@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from branch_util import *
 
-from DREAM.src.strategy.stitching.branch_util import Branch
+from branch_util import Branch
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
 parser.add_argument('-ilf', '--image-list-file', default='../../stitching/sample_img_list.txt',
@@ -27,12 +27,8 @@ parser.add_argument('--print-freq', '-p', default=10, type=int, metavar='N', hel
 def main():
     args = parser.parse_args()
     # Load data
-    img_list_file = args.image_list_file
-    feat_file = args.feat_file
-
-    train_map = get_dict(img_list_file)
-
-    data = load_feat(feat_file)
+    train_map = get_dict(args.image_list_file)  #имя и соотвестующие ей профильные и фрональные лица с указанием углов
+    data = load_feat(args.feat_file)
     data = np.vstack(data)
 
     #Create model - DREAM-block - Branch
@@ -81,10 +77,12 @@ def get_dict(file_name):
             if celeb_name not in res_dict:
                 res_dict[celeb_name] = (list(), list())
             yaw = abs(yaw)
-            if yaw <= 20:
+            if yaw <= 20:       #frontal face
                 res_dict[celeb_name][0].append((img_name, yaw, img_id))
-            elif yaw >= 50:
+            elif yaw >= 50:     #profile face
                 res_dict[celeb_name][1].append((img_name, yaw, img_id))
+
+    #удаляем всех у кого нет пары
     pop_list = []
     for key in res_dict:
         if len(res_dict[key][0]) == 0 or len(res_dict[key][1]) == 0:
@@ -98,6 +96,7 @@ def gen_batch(train_map, data, batch_size, feat_len):
     batch_train_feat = np.zeros([batch_size, feat_len])
     batch_target_feat = np.zeros([batch_size, feat_len])
     batch_yaw = np.zeros([batch_size, 1])
+
     keys = train_map.keys()
     for i in range(batch_size):
         this_key = random.sample(keys, 1)[0]
