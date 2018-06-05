@@ -9,7 +9,7 @@ if __name__ == '__main__':
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
 
-    celeb_name_file = sys.argv[2]  # /ssd/data/cfp/cfp_dataset/Data/list_name.txt
+    celeb_name_file = sys.argv[2]  # /cfp_dataset/Data/list_name.txt
     with open(celeb_name_file, 'r') as in_f:
         name_mapping = {idx + 1: '_'.join(line.strip().split()) \
                         for idx, line in enumerate(in_f)}
