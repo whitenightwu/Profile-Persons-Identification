@@ -8,9 +8,9 @@ import torch.nn as nn
 from branch_util import *
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
-parser.add_argument('-ilf', '--image-list-file', default='../../stitching/sample_img_list.txt',
+parser.add_argument('-ilf', '--image-list-file', default='/home/u0060/Profile-Persons-Identification/DREAM/data/stitching/sample_img_list.txt',
                     type=str, metavar='N', help='image list file')
-parser.add_argument('-ff', '--feat-file', default='../../stitching/ext_feat.bin',
+parser.add_argument('-ff', '--feat-file', default='/home/u0060/Profile-Persons-Identification/DREAM/data/stitching/ext_feat.bin',
                     type=str, metavar='N', help='extracted feature')
 parser.add_argument('-b', '--batch-size', default=256, type=int, metavar='N', help='mini-batch size (default: 256)')
 parser.add_argument('-f', '--feat-len', default=256, type=int, metavar='F', help='feature length (default: 256)')

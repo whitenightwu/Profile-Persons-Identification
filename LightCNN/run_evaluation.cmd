@@ -1,1 +1,0 @@
-python  extract_features.py --resume="/" --root_path="/../Datasets/msceleb_subset/image/" --img_list="img_list.txt" --model="LightCNN-29v2" --num_classes=10
