@@ -1,33 +1,29 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 24 11:58:14 2018
-
-@author: jerry
-"""
-
 import cv2
-import argparse
 import math
+import dlib
 import numpy as np
 import argparse
-from branch_util import *
+from imutils import face_utils
+
+# initialize dlib's face detector (HOG-based) and then create the facial landmark predictor
+p = "shape_predictor_68_face_landmarks.dat"
+detector = dlib.get_frontal_face_detector()
+predictor = dlib.shape_predictor(p)
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
-parser.add_argument('-ilf', '--image-list-file', default='', type=str, metavar='N', help='image list file')
-parser.add_argument('--dir', metavar='DIR', default='', help='path to dataset')
-parser.add_argument('--keys', metavar='DIR', default='', help='path to keys')
+parser.add_argument('-ilf', '--image-list-file', default='img.txt', type=str, metavar='N', help='image list file')
+parser.add_argument('--path', metavar='DIR', default='', help='path to dataset')
+
 
 def main():
     args = parser.parse_args()
+    path = args.path
 
-    keysFile = open('/home/jerry/Documents/test/test/landmark.txt', 'r')
-    for line in iter(keysFile):
-        img_info = line.split(' ')
-        img_path = img_info[0]
+    file_image_names = open(args.ilf, 'r')
+    for image_name in iter(file_image_names):
+        img_path = path + image_name
         frame = cv2.imread(img_path)
-        landmarks = map(int, img_info[1:])
-
-        print(img_path)
+        landmarks = detect_landmarks(img_path)
         imgpts, modelpts, rotate_degree, nose = face_orientation(frame, landmarks)
 
         cv2.line(frame, nose, tuple(imgpts[1].ravel()), (0, 255, 0), 3)  # GREEN
@@ -44,9 +40,9 @@ def main():
             cv2.putText(frame, ('{:05.2f}').format(float(rotate_degree[j])), (10, 30 + (50 * j)),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2, lineType=2)
 
-        cv2.imwrite('poseEstimation/' + img_path.split('/')[1], frame)
+        cv2.imwrite('poseEstimation/' + img_path, frame)
 
-    keysFile.close()
+    file_image_names.close()
 
 
 def face_orientation(frame, landmarks):
@@ -100,8 +96,34 @@ def face_orientation(frame, landmarks):
     pitch = math.degrees(math.asin(math.sin(pitch)))
     roll = -math.degrees(math.asin(math.sin(roll)))
     yaw = math.degrees(math.asin(math.sin(yaw)))
+    print(yaw)
 
     return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), (landmarks[4], landmarks[5])
+
+
+def detect_landmarks(file):
+    # load the input image and convert it to grayscale
+    image = cv2.imread(file)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # detect faces in the grayscale image
+    rects = detector(gray, 0)
+
+    # loop over the face detections
+    for (i, rect) in enumerate(rects):
+        # determine the facial landmarks for the face region, then
+        # convert the facial landmark (x, y)-coordinates to a NumPy array
+        shape = predictor(gray, rect)
+        shape = face_utils.shape_to_np(shape)
+        needed = [shape[33], shape[8], shape[36], shape[45], shape[48], shape[54]]
+
+        return needed
+        # loop over the (x, y)-coordinates for the facial landmarks and draw them on the image
+    # for (x, y) in needed:
+    #    cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
+
+    # show the output image with the face detections + facial landmarks
+    # cv2.imwrite('lands' + file, image)
 
 
 if __name__ == '__main__':
