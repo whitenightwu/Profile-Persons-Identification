@@ -11,7 +11,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(p)
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
-parser.add_argument('-ilf', '--image-list-file', default='img.txt', type=str, metavar='N', help='image list file')
+parser.add_argument('--ilf', '--image-list-file', default='img.txt', type=str, help='image list file')
 parser.add_argument('--path', metavar='DIR', default='', help='path to dataset')
 
 
@@ -22,19 +22,18 @@ def main():
     file_image_names = open(args.ilf, 'r')
     for image_name in iter(file_image_names):
         img_path = path + image_name
-        frame = cv2.imread(img_path)
-        landmarks = detect_landmarks(img_path)
+        frame = cv2.imread("1.jpg")
+        landmarks = detect_landmarks(img_path, frame)
         imgpts, modelpts, rotate_degree, nose = face_orientation(frame, landmarks)
 
         cv2.line(frame, nose, tuple(imgpts[1].ravel()), (0, 255, 0), 3)  # GREEN
         cv2.line(frame, nose, tuple(imgpts[0].ravel()), (255, 0,), 3)  # BLUE
         cv2.line(frame, nose, tuple(imgpts[2].ravel()), (0, 0, 255), 3)  # RED
 
-        remapping = [2, 3, 0, 4, 5, 1]
-        for index in range(len(landmarks) / 2):
+        for index in range(len(landmarks)):
             random_color = tuple(np.random.random_integers(0, 255, size=3))
-            cv2.circle(frame, (landmarks[index * 2], landmarks[index * 2 + 1]), 5, random_color, -1)
-            cv2.circle(frame, tuple(modelpts[remapping[index]].ravel().astype(int)), 2, random_color, -1)
+            cv2.circle(frame, landmarks[index], 5, random_color, -1)
+            cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, random_color, -1)
 
         for j in xrange(len(rotate_degree)):
             cv2.putText(frame, ('{:05.2f}').format(float(rotate_degree[j])), (10, 30 + (50 * j)),
@@ -49,12 +48,12 @@ def face_orientation(frame, landmarks):
     size = frame.shape  # (height, width, color_channel)
 
     image_points = np.array([
-        (landmarks[4], landmarks[5]),  # Nose tip
-        (landmarks[10], landmarks[11]),  # Chin
-        (landmarks[0], landmarks[1]),  # Left eye left corner
-        (landmarks[2], landmarks[3]),  # Right eye right corne
-        (landmarks[6], landmarks[7]),  # Left Mouth corner
-        (landmarks[8], landmarks[9])  # Right mouth corner
+        (landmarks[0]),  # Nose tip
+        (landmarks[1]),  # Chin
+        (landmarks[2]),  # Left eye left corner
+        (landmarks[3]),  # Right eye right corne
+        (landmarks[4]),  # Left Mouth corner
+        (landmarks[5])  # Right mouth corner
     ], dtype="double")
 
     model_points = np.array([
@@ -77,8 +76,7 @@ def face_orientation(frame, landmarks):
     )
 
     dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
-    (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix,
-                                                                  dist_coeffs, flags=cv2.CV_ITERATIVE)
+    (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix, dist_coeffs)
 
     axis = np.float32([[500, 0, 0],
                        [0, 500, 0],
@@ -92,18 +90,17 @@ def face_orientation(frame, landmarks):
     eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
 
     pitch, yaw, roll = [math.radians(_) for _ in eulerAngles]
-
+    print(yaw)
     pitch = math.degrees(math.asin(math.sin(pitch)))
     roll = -math.degrees(math.asin(math.sin(roll)))
     yaw = math.degrees(math.asin(math.sin(yaw)))
     print(yaw)
 
-    return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), (landmarks[4], landmarks[5])
+    return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), (landmarks[0]
 
 
-def detect_landmarks(file):
+def detect_landmarks(file, image):
     # load the input image and convert it to grayscale
-    image = cv2.imread(file)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # detect faces in the grayscale image
