@@ -21,7 +21,7 @@ model_names = sorted(name for name in models.__dict__
 
 parser = argparse.ArgumentParser(description='PyTorch CelebA Training')
 parser.add_argument('--img_dir', metavar='DIR', default='', help='path to dataset')
-parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet50', choices=model_names,
+parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18', choices=model_names,
                     help='model architecture: ' +
                          ' | '.join(model_names) +
                          ' (default: alexnet)')
@@ -73,7 +73,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     caffe_crop = CaffeCrop('test')
-    val_list_file = '/home/u0060/Datasets/msceleb_subset/img_list.txt'
+    val_list_file = '/home/u0060/Datasets/msceleb_subset/test_list.txt'
     val_label_file = '/home/u0060/Datasets/msceleb_subset/test_label.txt'
     val_dataset = MsCelebDataset(args.img_dir, val_list_file, val_label_file,
                                  transforms.Compose([caffe_crop, transforms.ToTensor()]))

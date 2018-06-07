@@ -48,7 +48,7 @@ if __name__ == '__main__':
         os.mkdir('./log/')
     log_file = './log/{}.log'.format(datetime.now().strftime('%m_%d_%H_%M'))
 
-    process_name = 'python main.py 2>&1 | tee {}'.format(log_file)
-    gpu_num = 8
+    process_name = 'python main.py --end2end --img_dir /home/u0060/Datasets/msceleb_subset/image 2>&1 | tee {}'.format(log_file)
+    gpu_num = 2
 
     allocate_gpu(process_name, gpu_num)
