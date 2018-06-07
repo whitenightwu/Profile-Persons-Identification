@@ -7,8 +7,6 @@ import torch
 import torch.nn as nn
 from branch_util import *
 
-from branch_util import Branch
-
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
 parser.add_argument('-ilf', '--image-list-file', default='../../stitching/sample_img_list.txt',
                     type=str, metavar='N', help='image list file')
