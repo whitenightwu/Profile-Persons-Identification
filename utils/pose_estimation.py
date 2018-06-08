@@ -66,7 +66,6 @@ def face_orientation(frame, landmarks):
     ])
 
     # Camera internals
-
     center = (size[1] / 2, size[0] / 2)
     focal_length = center[0] / np.tan(60 / 2 * np.pi / 180)
     camera_matrix = np.array(
@@ -76,7 +75,8 @@ def face_orientation(frame, landmarks):
     )
 
     dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
-    (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix, dist_coeffs)
+    (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix,
+                                                                  dist_coeffs)
 
     axis = np.float32([[500, 0, 0],
                        [0, 500, 0],
@@ -96,10 +96,10 @@ def face_orientation(frame, landmarks):
     yaw = math.degrees(math.asin(math.sin(yaw)))
     print(yaw)
 
-    return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), (landmarks[0]
+    return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), landmarks[0]
 
 
-def detect_landmarks(file, image):
+def detect_landmarks(image):
     # load the input image and convert it to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -114,10 +114,10 @@ def detect_landmarks(file, image):
         shape = face_utils.shape_to_np(shape)
         needed = [shape[33], shape[8], shape[36], shape[45], shape[48], shape[54]]
 
-        return needed
         # loop over the (x, y)-coordinates for the facial landmarks and draw them on the image
-    # for (x, y) in needed:
+    #for (x, y) in needed:
     #    cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
+    return needed
 
     # show the output image with the face detections + facial landmarks
     # cv2.imwrite('lands' + file, image)
