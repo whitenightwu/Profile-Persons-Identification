@@ -96,7 +96,7 @@ def face_orientation(frame, landmarks):
     yaw = math.degrees(math.asin(math.sin(yaw)))
     print(yaw)
 
-    return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), (landmarks[0]
+    return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), landmarks[0]
 
 
 def detect_landmarks(file, image):
