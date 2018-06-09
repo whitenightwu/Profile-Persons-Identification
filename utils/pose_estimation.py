@@ -3,6 +3,7 @@ import math
 import dlib
 import numpy as np
 import argparse
+import os
 from imutils import face_utils
 
 # initialize dlib's face detector (HOG-based) and then create the facial landmark predictor
@@ -17,29 +18,25 @@ parser.add_argument('--path', metavar='DIR', default='', help='path to dataset')
 
 def main():
     args = parser.parse_args()
-    path = args.path
+    path = os.getcwd()
 
     file_image_names = open(args.ilf, 'r')
     for image_name in iter(file_image_names):
-        img_path = path + image_name
-        frame = cv2.imread("1.jpg")
-        landmarks = detect_landmarks(img_path, frame)
+        img_path = str(os.path.join(path, image_name))
+        print(img_path)
+        img_path = "/home/u0060/Profile-Persons-Identification/utils/37_0.jpg"
+        frame = cv2.imread(img_path)
+        landmarks = detect_landmarks(frame)
         imgpts, modelpts, rotate_degree, nose = face_orientation(frame, landmarks)
 
-        cv2.line(frame, nose, tuple(imgpts[1].ravel()), (0, 255, 0), 3)  # GREEN
-        cv2.line(frame, nose, tuple(imgpts[0].ravel()), (255, 0,), 3)  # BLUE
-        cv2.line(frame, nose, tuple(imgpts[2].ravel()), (0, 0, 255), 3)  # RED
+        cv2.line(frame, tuple(nose), tuple(imgpts[1].ravel()), (0, 0, 255), 1)  # GREEN
+        cv2.line(frame, tuple(nose), tuple(imgpts[0].ravel()), (0, 0, 255), 1)  # BLUE
+        cv2.line(frame, tuple(nose), tuple(imgpts[2].ravel()), (0, 0, 255), 1)  # RED
 
         for index in range(len(landmarks)):
-            random_color = tuple(np.random.random_integers(0, 255, size=3))
-            cv2.circle(frame, landmarks[index], 5, random_color, -1)
-            cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, random_color, -1)
+            cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, (0, 255, 0), -1)
 
-        for j in xrange(len(rotate_degree)):
-            cv2.putText(frame, ('{:05.2f}').format(float(rotate_degree[j])), (10, 30 + (50 * j)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2, lineType=2)
-
-        cv2.imwrite('poseEstimation/' + img_path, frame)
+        cv2.imwrite("new01.jpg", frame)
 
     file_image_names.close()
 
@@ -96,8 +93,14 @@ def face_orientation(frame, landmarks):
     yaw = math.degrees(math.asin(math.sin(yaw)))
     print(yaw)
 
+    norm_angle = sigmoid(10 * (abs(yaw) / 45.0 - 1))
+    print(norm_angle)
+
     return imgpts, modelpts, (str(int(roll)), str(int(pitch)), str(int(yaw))), landmarks[0]
 
+
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
 
 def detect_landmarks(image):
     # load the input image and convert it to grayscale
@@ -114,9 +117,6 @@ def detect_landmarks(image):
         shape = face_utils.shape_to_np(shape)
         needed = [shape[33], shape[8], shape[36], shape[45], shape[48], shape[54]]
 
-        # loop over the (x, y)-coordinates for the facial landmarks and draw them on the image
-    #for (x, y) in needed:
-    #    cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
     return needed
 
     # show the output image with the face detections + facial landmarks
