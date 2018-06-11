@@ -1,9 +1,7 @@
 import argparse
 import os
+
 import cv2
-import numpy as np
-from facial_landmarks import detect_landmarks
-from pose_estimation import get_angle
 from face_align import *
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
@@ -30,12 +28,11 @@ if __name__ == '__main__':
     path = args.path
 
     images_dict = readImages(path);
-    print(images_dict.keys())
     w_out = 300;
     h_out = 300;
 
     for file, img in images_dict.items():
+        align_img = align(img, w_out, h_out, file)
         print(file)
-        print(detect_landmarks(img))
-        #align_img = align(img, w_out, h_out, file)
-        #angle = get_angle(align_img, file)
+        # angle = get_angle(align_img, file)
+        # print(file + '    ' + ''.join(angle))

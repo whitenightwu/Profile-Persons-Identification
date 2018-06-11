@@ -1,8 +1,9 @@
 import math
-import os
+
 import cv2
 import numpy as np
 from facial_landmarks import detect_landmarks
+
 
 def get_angle(frame, fileName, write=True):
     shape = detect_landmarks(frame)
@@ -18,10 +19,10 @@ def get_angle(frame, fileName, write=True):
         cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, (0, 255, 0), -1)
 
     if (write):
-        img_path = str(os.path.join(os.getcwd() + '\pose', fileName))
+        img_path = 'pose' + fileName
         cv2.imwrite(img_path, frame)
 
-    return rotate_degree  # вернет угол в радианах градусах и нелиннейный после сигмоиды
+    return rotate_degree
 
 
 def face_orientation(frame, landmarks):
@@ -70,18 +71,13 @@ def face_orientation(frame, landmarks):
     eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
 
     pitch, yaw, roll = [math.radians(_) for _ in eulerAngles]
-    print("Radians:" + yaw)
 
     # pitch = math.degrees(math.asin(math.sin(pitch)))
     # roll = -math.degrees(math.asin(math.sin(roll)))
     yaw_degree = math.degrees(math.asin(math.sin(yaw)))
-
-    print("Degree" + yaw)
-
     norm_angle = sigmoid(10 * (abs(yaw) / 45.0 - 1))
-    print("Nonlinear" + norm_angle)
 
-    return imgpts, modelpts, (str(int(yaw)), str(int(yaw_degree)), str(int(norm_angle))), landmarks[0]
+    return imgpts, modelpts, (str(yaw), str(yaw_degree), str(norm_angle), landmarks[0]
 
 
 def sigmoid(x):

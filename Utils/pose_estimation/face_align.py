@@ -141,7 +141,6 @@ def warpTriangle(img1, img2, t1, t2):
 
 def align(img, w, h, file):
     points = detect_landmarks(img)
-    img = np.float32(img) / 255.0;
 
     eyecornerDst = [(np.int(0.3 * w), np.int(h / 3)), (np.int(0.7 * w), np.int(h / 3))];
     boundaryPts = np.array([(0, 0), (w / 2, 0), (w - 1, 0), (w - 1, h / 2), (w - 1, h - 1), (w / 2, h - 1), (0, h - 1), (0, h / 2)]);
@@ -159,48 +158,7 @@ def align(img, w, h, file):
     # Apply similarity transformation
     img = cv2.warpAffine(img, tform, (w, h));
 
-    # Warp images and trasnform landmarks to output coordinate system, and find average of transformed landmarks.
-    # Apply similarity transform on points
-    points1 = points;
-    points2 = np.reshape(np.array(points1), (68, 1, 2));
-    points3 = cv2.transform(points2, tform);
-    points3 = np.float32(np.reshape(points3, (68, 2)));
+    img_path = 'align' + file
+    cv2.imwrite(img_path, img)
 
-    # Append boundary points. Will be used in Delaunay Triangulation
-    points3 = np.append(points3, boundaryPts, axis=0)
-
-    # Calculate location of average landmark points.
-    pointsAvg = pointsAvg + points3;
-
-    # Delaunay triangulation
-    rect = (0, 0, w, h);
-    dt = calculateDelaunayTriangles(rect, np.array(pointsAvg));
-
-    # Output image
-    output = np.zeros((h, w, 3), np.float32());
-
-    # Warp input images to average image landmarks
-    img0 = np.zeros((h, w, 3), np.float32());
-    # Transform triangles one by one
-    for j in range(0, len(dt)):
-        tin = [];
-        tout = [];
-
-        for k in range(0, 3):
-            pIn = points3[dt[j][k]];
-            pIn = constrainPoint(pIn, w, h);
-
-            pOut = pointsAvg[dt[j][k]];
-            pOut = constrainPoint(pOut, w, h);
-
-            tin.append(pIn);
-            tout.append(pOut);
-
-        warpTriangle(img, img0, tin, tout);
-
-    # Add image intensities for averaging
-    output = output + img0;
-    img_path = str(os.path.join(os.getcwd() + '\pose', file))
-    cv2.imwrite(img_path, output)
-
-    return output;
+    return img;
