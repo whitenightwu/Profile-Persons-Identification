@@ -1,35 +1,43 @@
-import dlib
-import numpy as np
 import argparse
 import os
-from imutils import face_utils
+import cv2
+import numpy as np
 from facial_landmarks import detect_landmarks
-
+from pose_estimation import get_angle
+from face_align import *
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
-parser.add_argument('--ilf', '--image-list-file', default='img.txt', type=str, help='image list file')
-parser.add_argument('--path', metavar='DIR', default='', help='path to dataset')
+parser.add_argument('--path', metavar='DIR', default='', help='path to folder')
+
+
+# Read all jpg images in folder.
+def readImages(path):
+    # Create array of array of images.
+    imagesArray = [];
+
+    # List all files in the directory and read points from text files one by one
+    for filePath in os.listdir(path):
+        if filePath.endswith(".jpg"):
+            img_path = os.path.join(path, filePath)
+            img = cv2.imread(img_path);
+
+            # Convert to floating point
+            imagesArray.append((filePath),(img));
+
+    return imagesArray;
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    path = os.getcwd()
+    path = os.getcwd() #args.path
 
-    file_image_names = open(args.ilf, 'r')
-    for image_name in iter(file_image_names):
-        img_path = str(os.path.join(path, image_name))
-        print(img_path)
-        img_path = "/home/u0060/Profile-Persons-Identification/utils/37_0.jpg"
-        frame = cv2.imread(img_path)
-        landmarks = detect_landmarks(frame, fileName = image_name)
-        imgpts, modelpts, rotate_degree, nose = face_orientation(frame, landmarks)
+    images = readImages(path);
 
-        cv2.line(frame, tuple(nose), tuple(imgpts[1].ravel()), (0, 0, 255), 1)  # GREEN
-        cv2.line(frame, tuple(nose), tuple(imgpts[0].ravel()), (0, 0, 255), 1)  # BLUE
-        cv2.line(frame, tuple(nose), tuple(imgpts[2].ravel()), (0, 0, 255), 1)  # RED
+    w_out = 300;
+    h_out = 300;
 
-        for index in range(len(landmarks)):
-            cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, (0, 255, 0), -1)
-
-        cv2.imwrite("new01.jpg", frame)
-
-    file_image_names.close()
+    for file, img in images:
+        #выровнять
+        align_img = align(img, w_out, h_out, file)
+        #найти углы
+        #angle = get_angle(align_img, file)

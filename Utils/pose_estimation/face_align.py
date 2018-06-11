@@ -6,54 +6,12 @@ import math
 import os
 import cv2
 import numpy as np
-
-
-# get points
-def readPoints(pointsArray):
-    # List all files in the directory and read points from text files one by one
-    for filePath in os.listdir(path):
-
-        if filePath.endswith(".txt"):
-
-            # Create an array of points.
-            points = [];
-
-            # Read points from filePath
-            with open(os.path.join(path, filePath)) as file:
-                for line in file:
-                    x, y = line.split()
-                    points.append((int(x), int(y)))
-
-            # Store array of points
-            pointsArray.append(points)
-
-    return pointsArray;
-
-
-# Read all jpg images in folder.
-def readImages(path):
-    # Create array of array of images.
-    imagesArray = [];
-
-    # List all files in the directory and read points from text files one by one
-    for filePath in os.listdir(path):
-        if filePath.endswith(".jpg"):
-            # Read image found.
-            img = cv2.imread(os.path.join(path, filePath));
-
-            # Convert to floating point
-            img = np.float32(img) / 255.0;
-
-            # Add to array of images
-            imagesArray.append(img);
-
-    return imagesArray;
+from facial_landmarks import detect_landmarks
 
 
 # Compute similarity transform given two sets of two points.
 # OpenCV requires 3 pairs of corresponding points.
 # We are faking the third one.
-
 def similarityTransform(inPoints, outPoints):
     s60 = math.sin(60 * math.pi / 180);
     c60 = math.cos(60 * math.pi / 180);
@@ -181,64 +139,38 @@ def warpTriangle(img1, img2, t1, t2):
     img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]] = img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]] + img2Rect
 
 
-if __name__ == '__main__':
+def align(img, w, h, file):
+    points = detect_landmarks(img)
+    img = np.float32(img) / 255.0;
 
-    path = '../Veronika Vasileva/'
-
-    # Dimensions of output image
-    w = 300;
-    h = 300;
-
-    # Read points for all images
-    allPoints = readPoints(path);
-
-    # Read all images
-    images = readImages(path);
-
-    # Eye corners
     eyecornerDst = [(np.int(0.3 * w), np.int(h / 3)), (np.int(0.7 * w), np.int(h / 3))];
-
-    imagesNorm = [];
-    pointsNorm = [];
-
-    # Add boundary points for delaunay triangulation
-    boundaryPts = np.array(
-        [(0, 0), (w / 2, 0), (w - 1, 0), (w - 1, h / 2), (w - 1, h - 1), (w / 2, h - 1), (0, h - 1), (0, h / 2)]);
+    boundaryPts = np.array([(0, 0), (w / 2, 0), (w - 1, 0), (w - 1, h / 2), (w - 1, h - 1), (w / 2, h - 1), (0, h - 1), (0, h / 2)]);
 
     # Initialize location of average points to 0s
-    pointsAvg = np.array([(0, 0)] * (len(allPoints[0]) + len(boundaryPts)), np.float32());
+    pointsAvg = np.array([(0, 0)] * (len(points) + len(boundaryPts)), np.float32());
+    n = len(points);
 
-    n = len(allPoints[0]);
+    # Corners of the eye in input image
+    eyecornerSrc = [points[36], points[45]];
 
-    numImages = len(images)
+    # Compute similarity transform
+    tform = similarityTransform(eyecornerSrc, eyecornerDst);
+
+    # Apply similarity transformation
+    img = cv2.warpAffine(img, tform, (w, h));
 
     # Warp images and trasnform landmarks to output coordinate system, and find average of transformed landmarks.
+    # Apply similarity transform on points
+    points1 = points;
+    points2 = np.reshape(np.array(points1), (68, 1, 2));
+    points3 = cv2.transform(points2, tform);
+    points3 = np.float32(np.reshape(points3, (68, 2)));
 
-    for i in range(0, numImages):
-        points1 = allPoints[i];
+    # Append boundary points. Will be used in Delaunay Triangulation
+    points3 = np.append(points3, boundaryPts, axis=0)
 
-        # Corners of the eye in input image
-        eyecornerSrc = [allPoints[i][36], allPoints[i][45]];
-
-        # Compute similarity transform
-        tform = similarityTransform(eyecornerSrc, eyecornerDst);
-
-        # Apply similarity transformation
-        img = cv2.warpAffine(images[i], tform, (w, h));
-
-        # Apply similarity transform on points
-        points2 = np.reshape(np.array(points1), (68, 1, 2));
-        points = cv2.transform(points2, tform);
-        points = np.float32(np.reshape(points, (68, 2)));
-
-        # Append boundary points. Will be used in Delaunay Triangulation
-        points = np.append(points, boundaryPts, axis=0)
-
-        # Calculate location of average landmark points.
-        pointsAvg = pointsAvg + points / numImages;
-
-        pointsNorm.append(points);
-        imagesNorm.append(img);
+    # Calculate location of average landmark points.
+    pointsAvg = pointsAvg + points3;
 
     # Delaunay triangulation
     rect = (0, 0, w, h);
@@ -248,31 +180,27 @@ if __name__ == '__main__':
     output = np.zeros((h, w, 3), np.float32());
 
     # Warp input images to average image landmarks
-    for i in range(0, len(imagesNorm)):
-        img = np.zeros((h, w, 3), np.float32());
-        # Transform triangles one by one
-        for j in range(0, len(dt)):
-            tin = [];
-            tout = [];
+    img0 = np.zeros((h, w, 3), np.float32());
+    # Transform triangles one by one
+    for j in range(0, len(dt)):
+        tin = [];
+        tout = [];
 
-            for k in range(0, 3):
-                pIn = pointsNorm[i][dt[j][k]];
-                pIn = constrainPoint(pIn, w, h);
+        for k in range(0, 3):
+            pIn = points3[dt[j][k]];
+            pIn = constrainPoint(pIn, w, h);
 
-                pOut = pointsAvg[dt[j][k]];
-                pOut = constrainPoint(pOut, w, h);
+            pOut = pointsAvg[dt[j][k]];
+            pOut = constrainPoint(pOut, w, h);
 
-                tin.append(pIn);
-                tout.append(pOut);
+            tin.append(pIn);
+            tout.append(pOut);
 
-            warpTriangle(imagesNorm[i], img, tin, tout);
+        warpTriangle(img, img0, tin, tout);
 
-        # Add image intensities for averaging
-        output = output + img;
+    # Add image intensities for averaging
+    output = output + img0;
+    img_path = str(os.path.join(os.getcwd() + '\pose', file))
+    cv2.imwrite(img_path, output)
 
-    # Divide by numImages to get average
-    output = output / numImages;
-
-    # Display result
-    cv2.imshow('image', output);
-    cv2.waitKey(0);
+    return output;

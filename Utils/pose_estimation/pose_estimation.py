@@ -4,9 +4,10 @@ import cv2
 import numpy as np
 from facial_landmarks import detect_landmarks
 
-
 def get_angle(frame, fileName, write=True):
-    landmarks = detect_landmarks(frame, fileName=fileName)
+    shape = detect_landmarks(frame)
+    landmarks = [shape[33], shape[8], shape[36], shape[45], shape[48], shape[54]]
+
     imgpts, modelpts, rotate_degree, nose = face_orientation(frame, landmarks)
 
     cv2.line(frame, tuple(nose), tuple(imgpts[1].ravel()), (0, 0, 255), 1)  # GREEN
@@ -20,7 +21,8 @@ def get_angle(frame, fileName, write=True):
         img_path = str(os.path.join(os.getcwd() + '\pose', fileName))
         cv2.imwrite(img_path, frame)
 
-    return rotate_degree    # вернет угол в радианах градусах и нелиннейный после сигмоиды
+    return rotate_degree  # вернет угол в радианах градусах и нелиннейный после сигмоиды
+
 
 def face_orientation(frame, landmarks):
     size = frame.shape  # (height, width, color_channel)
@@ -70,8 +72,8 @@ def face_orientation(frame, landmarks):
     pitch, yaw, roll = [math.radians(_) for _ in eulerAngles]
     print("Radians:" + yaw)
 
-    #pitch = math.degrees(math.asin(math.sin(pitch)))
-    #roll = -math.degrees(math.asin(math.sin(roll)))
+    # pitch = math.degrees(math.asin(math.sin(pitch)))
+    # roll = -math.degrees(math.asin(math.sin(roll)))
     yaw_degree = math.degrees(math.asin(math.sin(yaw)))
 
     print("Degree" + yaw)
