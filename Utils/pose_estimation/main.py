@@ -32,7 +32,7 @@ if __name__ == '__main__':
     path = os.getcwd() #args.path
 
     images = readImages(path);
-
+    print(images)
     w_out = 300;
     h_out = 300;
 
