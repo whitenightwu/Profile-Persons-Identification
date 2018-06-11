@@ -3,6 +3,7 @@ import os
 
 import cv2
 from face_align import *
+from pose_estimation import get_angle
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
 parser.add_argument('--path', metavar='DIR', default='', help='path to folder')

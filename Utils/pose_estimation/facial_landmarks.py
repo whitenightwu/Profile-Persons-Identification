@@ -1,4 +1,3 @@
-import os
 import cv2
 import dlib
 from imutils import face_utils

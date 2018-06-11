@@ -3,7 +3,7 @@
 # All rights reserved. No warranty, explicit or implicit, provided.
 
 import math
-import os
+
 import cv2
 import numpy as np
 from facial_landmarks import detect_landmarks
@@ -143,7 +143,8 @@ def align(img, w, h, file):
     points = detect_landmarks(img)
 
     eyecornerDst = [(np.int(0.3 * w), np.int(h / 3)), (np.int(0.7 * w), np.int(h / 3))];
-    boundaryPts = np.array([(0, 0), (w / 2, 0), (w - 1, 0), (w - 1, h / 2), (w - 1, h - 1), (w / 2, h - 1), (0, h - 1), (0, h / 2)]);
+    boundaryPts = np.array(
+        [(0, 0), (w / 2, 0), (w - 1, 0), (w - 1, h / 2), (w - 1, h - 1), (w / 2, h - 1), (0, h - 1), (0, h / 2)]);
 
     # Initialize location of average points to 0s
     pointsAvg = np.array([(0, 0)] * (len(points) + len(boundaryPts)), np.float32());
