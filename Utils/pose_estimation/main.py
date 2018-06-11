@@ -30,10 +30,12 @@ if __name__ == '__main__':
     path = args.path
 
     images_dict = readImages(path);
-    print(images_dict)
+    print(images_dict.keys())
     w_out = 300;
     h_out = 300;
 
-    for file, img in images_dict:
-        align_img = align(img, w_out, h_out, file)
+    for file, img in images_dict.items():
+        print(file)
+        print(detect_landmarks(img))
+        #align_img = align(img, w_out, h_out, file)
         #angle = get_angle(align_img, file)

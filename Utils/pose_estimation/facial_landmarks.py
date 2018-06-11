@@ -19,4 +19,4 @@ def detect_landmarks(image):
         # convert the facial landmark (x, y)-coordinates to a NumPy array
         shape = predictor(gray, rect)
         shape = face_utils.shape_to_np(shape)
-    return shape
+        return shape
