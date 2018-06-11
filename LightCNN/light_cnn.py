@@ -52,7 +52,8 @@ class resblock(nn.Module):
 
 
 class network_9layers(nn.Module):
-    def __init__(self, num_classes=79077):
+    def __init__(self, num_classes=79077, end2end=True):
+        self.end2end = end2end
         super(network_9layers, self).__init__()
         self.features = nn.Sequential(
             mfm(1, 48, 5, 1, 2),
@@ -66,16 +67,36 @@ class network_9layers(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2, ceil_mode=True),
         )
         self.fc1 = mfm(8 * 8 * 128, 256, type=0)
+        self.feature = nn.Linear(256, 256)
+        if self.end2end:
+            self.fc11 = nn.Linear(256, 256)
+            self.fc21 = nn.Linear(256, 256)
         self.fc2 = nn.Linear(256, num_classes)
 
-    def forward(self, x):
+    def forward(self, x, yaw):
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
         x = F.dropout(x, training=self.training)
-        out = self.fc2(x)
-        return out, x
+        mid_feature = self.feature(x)
 
+        if self.end2end:
+            raw_feature = self.fc11(mid_feature)
+            raw_feature = self.relu(raw_feature)
+            raw_feature = self.fc21(raw_feature)
+            raw_feature = self.relu(raw_feature)
+
+            yaw = yaw.view(yaw.size(0), 1)
+            yaw = yaw.expand_as(raw_feature)
+
+            feature = yaw * raw_feature + mid_feature
+        else:
+            feature = mid_feature
+
+        feature = F.dropout(feature, p=0.7, training=self.training)
+        pred_score = self.fc2(feature)
+
+        return pred_score, feature
 
 class network_29layers(nn.Module):
     def __init__(self, block, layers, num_classes=79077):

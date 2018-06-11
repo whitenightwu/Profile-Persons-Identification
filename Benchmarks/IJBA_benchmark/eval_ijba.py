@@ -109,7 +109,6 @@ def extract_feat(arch, model_path, yaw_type):
 
     
     for root_dir, sub_dir, img_type in infos:
-
         for split in range(1,11):
             split_dir = os.path.join(root_dir, sub_dir+str(split))
             img_dir = os.path.join(split_dir, img_type)
