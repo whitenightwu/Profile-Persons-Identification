@@ -1,21 +1,15 @@
 #!/usr/bin/env python
-
 # Copyright (c) 2016 Satya Mallick <spmallick@learnopencv.com>
 # All rights reserved. No warranty, explicit or implicit, provided.
 
-
 import math
 import os
-
 import cv2
 import numpy as np
 
 
-# Read points from text files in directory
-def readPoints(path):
-    # Create an array of array of points.
-    pointsArray = [];
-
+# get points
+def readPoints(pointsArray):
     # List all files in the directory and read points from text files one by one
     for filePath in os.listdir(path):
 
@@ -182,14 +176,14 @@ def warpTriangle(img1, img2, t1, t2):
 
     # Copy triangular region of the rectangular patch to the output image
     img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]] = img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]] * (
-        (1.0, 1.0, 1.0) - mask)
+            (1.0, 1.0, 1.0) - mask)
 
     img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]] = img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]] + img2Rect
 
 
 if __name__ == '__main__':
 
-    path = 'Veronika Vasileva/'
+    path = '../Veronika Vasileva/'
 
     # Dimensions of output image
     w = 300;

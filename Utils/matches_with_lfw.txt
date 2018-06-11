@@ -59,7 +59,6 @@ m.014kb2 Alexander Lukashenko
 m.014sn2 Trent Lott
 m.014vk4 Condoleezza Rice
 m.014x8j Dale Earnhardt Jr.
-m.014x8j Dale Earnhardt Jr.
 m.014xn7 Evander Holyfield
 m.014xzx Rupert Grint
 m.014zcr George Clooney
@@ -275,7 +274,6 @@ m.01fgd3 Rick Santorum
 m.01fh9 Billy Bob Thornton
 m.01fhjf George Galloway
 m.01fhst Lynne Cheney
-m.01fkqs Ali Abdullah Saleh
 m.01fkqs Ali Abdullah Saleh
 m.01fkxr LeAnn Rimes
 m.01fm99 Ronnie Musgrove
@@ -639,7 +637,6 @@ m.01yv6p Mother Teresa
 m.01ywpx Makiko Tanaka
 m.01yym5 Anwar Ibrahim
 m.01yynm Abdullah Ahmad Badawi
-m.01yynm Abdullah Ahmad Badawi
 m.01z0rcq Mary-Kate Olsen
 m.01z14y Yu Shyi-kun
 m.01z3z3 Frank Hsieh
@@ -677,7 +674,6 @@ m.0218pw Peter Caruana
 m.0219kb Danny Ainge
 m.021d_0 Colin Montgomerie
 m.021n8t Edward de Bono
-m.021v2z Juan Carlos Ferrero
 m.021v2z Juan Carlos Ferrero
 m.021x9g Marat Safin
 m.021yhj Leonid Kuchma
@@ -732,7 +728,6 @@ m.024thk John Henry Faulk
 m.024vtg Alonzo Mourning
 m.024vz4 Rachel Kempson
 m.024wt7 Harbhajan Singh
-m.024xmf Mary Bono
 m.024xmf Mary Bono
 m.024zc8 Nick Rahall
 m.02502p Edward Seaga
@@ -940,7 +935,6 @@ m.02kxwk Kathy Bates
 m.02l1g0 Harry Kalas
 m.02l2s2 Paula Zahn
 m.02l4rh Kristin Scott Thomas
-m.02l4rh Kristin Scott Thomas
 m.02l6dy Gretchen Mol
 m.02l9xz Michael Boyce, Baron Boyce
 m.02ldv0 Gary Sinise
@@ -1114,7 +1108,6 @@ m.0320jz Jessica Biel
 m.032bfz Natasha Lyonne
 m.032ljq Fazul Abdullah Mohammed
 m.032mj7 James Wattana
-m.032mj7 James Wattana
 m.032wdd Tara Reid
 m.0335fp Bradley Whitford & Jane Kaczmarek
 m.0337vz Larenz Tate
@@ -1160,7 +1153,6 @@ m.037bzt Diana Taurasi
 m.037d35 Paul Schrader
 m.037j94 Tommy Lasorda
 m.037ky3 Rosie Perez
-m.037n_q Carlos Alberto Parreira
 m.037n_q Carlos Alberto Parreira
 m.037w1 Garry Trudeau
 m.037w7r Geraldine Chaplin
@@ -1643,7 +1635,6 @@ m.057d_r Larry Coker
 m.057f0t Jim Tressel
 m.057hz Mary Tyler Moore
 m.057nh0 Jesse James Leija
-m.057nh0 Jesse James Leija
 m.057nxy Mark Richt
 m.057wqn Sean Patrick Thomas
 m.057yk8 Charlie Hunnam
@@ -1680,7 +1671,6 @@ m.05cnkm Joe Mantello
 m.05czcv Howard Stringer
 m.05d0sm Francis Collins
 m.05db50 Joey Buttafuoco
-m.05dbf Nicole Kidman
 m.05dbf Nicole Kidman
 m.05dd_l Li Zhaoxing
 m.05df3p Tang Jiaxuan
@@ -1942,7 +1932,6 @@ m.07_v16 Dave Campo
 m.07_v3p Dick Jauron
 m.07bkv Steve Ballmer
 m.07bm51 Tatsuya Fujiwara
-m.07bp3c Nicoletta Braschi
 m.07bp3c Nicoletta Braschi
 m.07cjwm James Harris Simons
 m.07cm6_ Sean Paul Lockhart
@@ -2393,7 +2382,6 @@ m.0hvby JC Chasez
 m.0hw1j Robert Towne
 m.0hwbd Faye Dunaway
 m.0hwfl Anna Nicole Smith
-m.0hwfl Anna Nicole Smith
 m.0hwmx Chick Hearn
 m.0hwpl Sophie Dahl
 m.0hwqz Jamie Lee Curtis
@@ -2513,3 +2501,4 @@ m.0y8r3 Oscar de la Renta
 m.0yc8l Charles Moose
 m.0ykty Yann Martel
 m.0z4s Anthony Hopkins
+m.010g87 Veronika Vasileva

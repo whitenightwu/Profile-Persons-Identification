@@ -84,14 +84,13 @@ def extract_feat(arch, resume):
     model = None
     assert (arch in ['resnet18', 'resnet50', 'resnet101'])
     if arch == 'resnet18':
-        model = resnet18(pretrained=False, num_classes=class_num, \
+        model = resnet18(pretrained=False, num_classes=class_num,
                          extract_feature=True, end2end=end2end)
     if arch == 'resnet50':
-        model = resnet50(pretrained=False, num_classes=class_num, \
+        model = resnet50(pretrained=False, num_classes=class_num,
                          extract_feature=True, end2end=end2end)
     if arch == 'resnet101':
-        model = resnet101(pretrained=False, num_classes=class_num, \
-                          extract_feature=True, end2end=end2end)
+        model = resnet101(pretrained=False, num_classes=class_num, extract_feature=True, end2end=end2end)
 
     model = torch.nn.DataParallel(model).cuda()
     model.eval()
