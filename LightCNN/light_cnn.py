@@ -69,6 +69,8 @@ class network_9layers(nn.Module):
         )
         self.fc1 = mfm(8 * 8 * 128, 256, type=0)
         self.feature = nn.Linear(256, 256)
+        self.relu = nn.ReLU(inplace=True)
+        
         if self.end2end:
             self.fc11 = nn.Linear(256, 256)
             self.fc21 = nn.Linear(256, 256)
