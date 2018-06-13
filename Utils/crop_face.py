@@ -41,29 +41,95 @@ def cropped(dataset_path):
 
 
 def file_create():
-    global saveFile
     list1 = "img_list.csv"
     list2 = "img_list2.csv"
     saveTrain = "train.txt"
     saveVal = "val.txt"
-    saveFile = "list.csv"
+    saveFile = "list.txt"
 
     with io.open(saveFile, 'w', encoding='utf-8') as saveF:
-        ID = 0
-        count = 0
+        prev_ID = 0
+        ID = 1
+        count = 1
         with io.open(list1, 'r', encoding='utf-8') as list1:
             reader = csv.reader(list1, delimiter='\t')
             for row in reader:
                 path_img, yaw = row[1], row[6]
-                directory = "./cropped/" + path_img.split
+                directory = "./cropped/" + path_img
                 if os.path.exists(directory):
-                    count += 1
-                    if (row[0] != ID):
+                    if (prev_ID != int(row[0])):
                         ID += 1
-                    saveF.write('\t'.join(ID, path_img, yaw) + '\n')
-                prev_ID = row[0]
-        print('Total' + count)
-        print('ID ' + ID)
+                    saveF.write('\t'.join([str(ID), path_img, yaw]) + '\n')
+                    count += 1
+                    prev_ID = int(row[0])
+
+        prev_ID = 2
+        with io.open(list2, 'r', encoding='utf-8') as list2:
+            reader = csv.reader(list2, delimiter='\t')
+            for row in reader:
+                path_img, yaw = row[1], row[6]
+                directory = "./cropped/" + path_img
+                if os.path.exists(directory):
+                    if (prev_ID != int(row[0])):
+                        ID += 1
+                    saveF.write('\t'.join([str(ID), path_img, yaw]) + '\n')
+                    count += 1
+                    prev_ID = int(row[0])
+
+        print('Total ' + str(count))
+        print('ID ' + str(ID))
 
 
-extract("img_list.csv")
+def create_samples():
+    list = "list.txt"
+    train = "train.txt"
+    val = "val.txt"
+    hash = dict()
+
+    with io.open(list, 'r', encoding='utf-8') as list:
+        reader = csv.reader(list, delimiter='\t')
+        for row in reader:
+            ID, path_img, yaw = row[0], row[1], row[2]
+            if ID not in hash:
+                hash[ID] = []
+            hash[ID].append([path_img, yaw])
+
+    keys = []
+    for key in hash.keys():
+        if len(hash[key]) < 2:
+            keys.append(key)
+
+    for key in keys:
+        if key in hash and len(hash[key]) < 2:
+            del hash[key]
+
+    train_dict = dict()
+    val_dict = dict()
+    for key in hash.keys():
+        train_dict[key] = []
+        val_dict[key] = []
+
+    for key in hash.keys():
+        value = hash[key]
+        size = len(value)
+        if size > 40:
+            size = 40
+        col1 = round(size * 0.6)
+        i = 0
+        for v in value:
+            if i < col1:
+                train_dict[key].append(v)
+            if col1 <= i < size:
+                val_dict[key].append(v)
+            i += 1
+
+    with io.open(train, 'w', encoding='utf-8') as train:
+        with io.open(val, 'w', encoding='utf-8') as val:
+            for key in hash.keys():
+                train_v = train_dict[key]
+                val_v = val_dict[key]
+                for v in train_v:
+                    train.write('\t'.join([key, v[0], v[1]]) + '\n')
+                for v in val_v:
+                    val.write('\t'.join([key, v[0], v[1]]) + '\n')
+
