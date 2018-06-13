@@ -159,7 +159,7 @@ def align(img, w, h, file):
     # Apply similarity transformation
     img = cv2.warpAffine(img, tform, (w, h));
 
-    img_path = 'align' + file
+    img_path = 'align'+ file
     cv2.imwrite(img_path, img)
 
     return img;

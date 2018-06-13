@@ -7,16 +7,20 @@ from facial_landmarks import detect_landmarks
 
 def get_angle(frame, fileName, write=True):
     shape = detect_landmarks(frame)
+    if shape is None:
+       return []
     landmarks = [shape[33], shape[8], shape[36], shape[45], shape[48], shape[54]]
 
     imgpts, modelpts, rotate_degree, nose = face_orientation(frame, landmarks)
 
-    cv2.line(frame, tuple(nose), tuple(imgpts[1].ravel()), (0, 0, 255), 1)  # GREEN
-    cv2.line(frame, tuple(nose), tuple(imgpts[0].ravel()), (0, 0, 255), 1)  # BLUE
-    cv2.line(frame, tuple(nose), tuple(imgpts[2].ravel()), (0, 0, 255), 1)  # RED
+    cv2.line(frame, tuple(nose), tuple(imgpts[1].ravel()), (0, 0, 255), 1)  
+    cv2.line(frame, tuple(nose), tuple(imgpts[0].ravel()), (0, 0, 255), 1)  
+    cv2.line(frame, tuple(nose), tuple(imgpts[2].ravel()), (0, 0, 255), 1)  
 
     for index in range(len(landmarks)):
-        cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, (0, 255, 0), -1)
+         #cv2.circle(frame, tuple(modelpts[index].ravel().astype(int)), 2, (0, 255, 0), -1)
+         cv2.circle(frame, tuple(landmarks[index]), 2, (255, 255, 0), -1)
+
 
     if (write):
         img_path = 'pose' + fileName
@@ -40,8 +44,8 @@ def face_orientation(frame, landmarks):
     model_points = np.array([
         (0.0, 0.0, 0.0),  # Nose tip
         (0.0, -330.0, -65.0),  # Chin
-        (-165.0, 170.0, -135.0),  # Left eye left corner
-        (165.0, 170.0, -135.0),  # Right eye right corne
+        (-225.0, 170.0, -135.0),  # Left eye left corner
+        (225.0, 170.0, -135.0),  # Right eye right corne
         (-150.0, -150.0, -125.0),  # Left Mouth corner
         (150.0, -150.0, -125.0)  # Right mouth corner
     ])
@@ -57,7 +61,7 @@ def face_orientation(frame, landmarks):
 
     dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
     (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix,
-                                                                  dist_coeffs)
+                                                                  dist_coeffs, flags=cv2.SOLVEPNP_ITERATIVE)
 
     axis = np.float32([[500, 0, 0],
                        [0, 500, 0],
@@ -75,9 +79,9 @@ def face_orientation(frame, landmarks):
     # pitch = math.degrees(math.asin(math.sin(pitch)))
     # roll = -math.degrees(math.asin(math.sin(roll)))
     yaw_degree = math.degrees(math.asin(math.sin(yaw)))
-    norm_angle = sigmoid(10 * (abs(yaw) / 45.0 - 1))
+    norm_angle = sigmoid(10 * (abs(yaw_degree) / 30.0 - 1))
 
-    return imgpts, modelpts, (str(yaw), str(yaw_degree), str(norm_angle), landmarks[0]
+    return imgpts, modelpts, (str(yaw), str(yaw_degree), str(norm_angle)), landmarks[0]
 
 
 def sigmoid(x):

@@ -4,6 +4,7 @@ import os
 import cv2
 from face_align import *
 from pose_estimation import get_angle
+from facial_landmarks import detect_landmarks
 
 parser = argparse.ArgumentParser(description='Pytorch Branch Finetuning')
 parser.add_argument('--path', metavar='DIR', default='', help='path to folder')
@@ -33,7 +34,5 @@ if __name__ == '__main__':
     h_out = 300;
 
     for file, img in images_dict.items():
-        align_img = align(img, w_out, h_out, file)
-        print(file)
-        # angle = get_angle(align_img, file)
-        # print(file + '    ' + ''.join(angle))
+        angle = get_angle(img, file)
+        print(file + '   ' + '  '.join(angle))
