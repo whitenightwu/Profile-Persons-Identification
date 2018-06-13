@@ -3,12 +3,13 @@ import os.path
 
 import torch.utils.data as data
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-
-def default_loader(path):
-    size = 140, 140
-    img = Image.open(path).convert('L')
-    img = img.thumbnail(size, Image.ANTIALIAS)
+def img_loader(path):
+    size = 144, 144
+    img = Image.open(path).convert("L")
+    img.thumbnail(size, Image.ANTIALIAS)
     return img
 
 
@@ -28,11 +29,10 @@ class ImageList(data.Dataset):
         self.root = root
         self.imgList, self.max_label = load_list(fileList)
         self.transform = transform
-        self.loader = default_loader
 
     def __getitem__(self, index):
         imgPath, target, yaw = self.imgList[index]
-        img = self.loader(os.path.join(self.root, imgPath))
+        img = img_loader(os.path.join(self.root, imgPath))
 
         if self.transform is not None:
             img = self.transform(img)
