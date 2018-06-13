@@ -6,33 +6,37 @@ from PIL import Image
 
 
 def default_loader(path):
+    size = 140, 140
     img = Image.open(path).convert('L')
+    img = img.thumbnail(size, Image.ANTIALIAS)
     return img
 
 
-def default_list_reader(fileList):
+def load_list(fileList):
     imgList = []
+    max_label = 0
     with open(fileList, 'r') as file:
         for line in file.readlines():
-            imgPath, label = line.strip().split(' ')
-            imgList.append((imgPath, int(label)))
-    return imgList
+            id, imgPath, yaw = line.strip().split('\t')
+            imgList.append((imgPath, int(id), float(yaw)))
+            max_label = max(max_label, int(id))
+    return imgList, max_label
 
 
 class ImageList(data.Dataset):
-    def __init__(self, root, fileList, transform=None, list_reader=default_list_reader, loader=default_loader):
+    def __init__(self, root, fileList, transform=None):
         self.root = root
-        self.imgList = list_reader(fileList)
+        self.imgList, self.max_label = load_list(fileList)
         self.transform = transform
-        self.loader = loader
+        self.loader = default_loader
 
     def __getitem__(self, index):
-        imgPath, target = self.imgList[index]
+        imgPath, target, yaw = self.imgList[index]
         img = self.loader(os.path.join(self.root, imgPath))
 
         if self.transform is not None:
             img = self.transform(img)
-        return img, target
+        return img, target, yaw
 
     def __len__(self):
         return len(self.imgList)

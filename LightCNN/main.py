@@ -7,6 +7,8 @@ from __future__ import print_function
 
 import argparse
 import os
+import shutil
+import time
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -44,15 +46,15 @@ parser.add_argument('--model', default='LightCNN-9', type=str, metavar='Model',
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--root_path', default='', type=str, metavar='PATH',
-                    help='path to root path of images (default: none)')
+                    help='path to images (default: none)')
 parser.add_argument('--train_list', default='', type=str, metavar='PATH',
                     help='path to training list (default: none)')
 parser.add_argument('--val_list', default='', type=str, metavar='PATH',
                     help='path to validation list (default: none)')
-parser.add_argument('--save_path', default='', type=str, metavar='PATH',
+parser.add_argument('--save_path', default='checkpoint', type=str, metavar='PATH',
                     help='path to save checkpoint (default: none)')
-parser.add_argument('--num_classes', default=99891, type=int,
-                    metavar='N', help='number of classes (default: 99891)')
+parser.add_argument('--num_classes', default=4382, type=int,
+                    metavar='N', help='number of classes (default: 4382)')
 parser.add_argument('--end2end', action='store_true',
                     help='if true, using end2end with dream block, else, using naive architecture')
 
