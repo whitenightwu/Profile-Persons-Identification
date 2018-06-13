@@ -144,7 +144,7 @@ def create_model_parameters(args, model):
 
 def create_model(end2end=True):
     if args.model == 'LightCNN-9':
-        model = LightCNN_9Layers(end2end, num_classes=args.num_classes)
+        model = LightCNN_9Layers(num_classes=args.num_classes, end2end=True)
     elif args.model == 'LightCNN-29v2':
         model = LightCNN_29Layers_v2(end2end, num_classes=args.num_classes)
     else:
