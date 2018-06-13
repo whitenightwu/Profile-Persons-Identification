@@ -59,11 +59,12 @@ def extract_feat(arch, resume):
         end2end = False
 
     arch = arch.split('_')[0]
+    dataset = '/home/u0060/Datasets/cfp-align/'
 
     # load data and prepare dataset
-    frontal_list_file = '../../data/CFP/protocol/frontal_list_nonli.txt'
+    frontal_list_file = 'cfp_protocol/protocol/frontal_list_nonli.txt'
     caffe_crop = CaffeCrop('test')
-    frontal_dataset = CFPDataset(args.img_dir, frontal_list_file,
+    frontal_dataset = CFPDataset(dataset, frontal_list_file,
                                  transforms.Compose([caffe_crop, transforms.ToTensor()]))
     frontal_loader = torch.utils.data.DataLoader(
         frontal_dataset,
@@ -71,8 +72,8 @@ def extract_feat(arch, resume):
         num_workers=args.workers, pin_memory=True)
 
     caffe_crop = CaffeCrop('test')
-    profile_list_file = '../../data/CFP/protocol/profile_list_nonli.txt'
-    profile_dataset = CFPDataset(args.img_dir, profile_list_file,
+    profile_list_file = 'cfp_protocol/profile_list_nonli.txt'
+    profile_dataset = CFPDataset(dataset, profile_list_file,
                                  transforms.Compose([caffe_crop, transforms.ToTensor()]))
     profile_loader = torch.utils.data.DataLoader(
         profile_dataset,
@@ -102,7 +103,7 @@ def extract_feat(arch, resume):
     cudnn.benchmark = True
 
     data_num = len(frontal_dataset)
-    frontal_feat_file = './data/frontal_feat.bin'
+    frontal_feat_file = './frontal_feat.bin'
     feat_dim = 256
     with open(frontal_feat_file, 'wb') as bin_f:
         bin_f.write(st.pack('ii', data_num, feat_dim))
@@ -118,7 +119,7 @@ def extract_feat(arch, resume):
                 bin_f.write(st.pack('f' * feat_dim, *tuple(output_data[j, :])))
 
     data_num = len(profile_dataset.imgs)
-    profile_feat_file = './data/profile_feat.bin'
+    profile_feat_file = './profile_feat.bin'
     with open(profile_feat_file, 'wb') as bin_f:
         bin_f.write(st.pack('ii', data_num, feat_dim))
         for i, (input, yaw) in enumerate(profile_loader):

@@ -77,17 +77,15 @@ def eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats):
                 scores.append(score)
                 labels.append(label)
     fpr, tpr, thresholds = metrics.roc_curve(labels, scores)
-    # draw_roc(fpr,tpr,title='center loss')
+    draw_roc(fpr,tpr)
     auc = metrics.auc(fpr, tpr)
     eer = calc_eer(fpr, tpr)
     return auc, eer
 
 
-def eval_roc_main():
-    frontal_feat_file = './data/frontal_feat.bin'
-    profile_feat_file = './data/profile_feat.bin'
-    # frontal_feat_file = './data/center_loss_frontal_feat.bin'
-    # profile_feat_file = './data/center_loss_profile_feat.bin'
+def eval_roc_main(dataset):
+    frontal_feat_file = './frontal_feat.bin'
+    profile_feat_file = './profile_feat.bin'
 
     frontal_feats = load_feat(frontal_feat_file)
     profile_feats = load_feat(profile_feat_file)
@@ -104,7 +102,7 @@ def eval_roc_main():
             split_name = str(split_id + 1)
             if len(split_name) < 2: split_name = '0' + split_name
             auc, eer = eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats)
-            # print('{} split {}, auc: {}, eer: {}'.format(pair_type,split_name,auc,eer))
+            print('{} split {}, auc: {}, eer: {}'.format(pair_type,split_name,auc,eer))
             aucs.append(auc)
             eers.append(eer)
         print('Average auc:', np.mean(aucs))

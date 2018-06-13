@@ -15,7 +15,7 @@ import torch.nn.parallel
 import torch.optim
 import torch.utils.data
 import torchvision.transforms as transforms
-from light_cnn import LightCNN_9Layers, LightCNN_29Layers, LightCNN_29Layers_v2
+from light_cnn import LightCNN_9Layers, LightCNN_29Layers_v2
 from load_imglist import ImageList
 from train import train, validate
 
@@ -38,7 +38,8 @@ parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
 parser.add_argument('--print-freq', '-p', default=100, type=int,
                     metavar='N', help='print frequency (default: 100)')
-parser.add_argument('--model', default='LightCNN-29v2', type=str, metavar='Model',
+
+parser.add_argument('--model', default='LightCNN-9', type=str, metavar='Model',
                     help='model type: LightCNN-9, LightCNN-29, LightCNN-29v2')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
@@ -52,17 +53,18 @@ parser.add_argument('--save_path', default='', type=str, metavar='PATH',
                     help='path to save checkpoint (default: none)')
 parser.add_argument('--num_classes', default=99891, type=int,
                     metavar='N', help='number of classes (default: 99891)')
-
+parser.add_argument('--end2end', action='store_true',
+                    help='if true, using end2end with dream block, else, using naive architecture')
 
 def main():
     global args
     args = parser.parse_args()
 
-    model = create_model()
-
+    model = create_model(args.end2end)
     params = create_model_parameters(args, model)
 
     optimizer = torch.optim.SGD(params, args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    criterion = nn.CrossEntropyLoss()   # loss function
 
     # optionally resume from a checkpoint
     if args.resume:
@@ -71,22 +73,23 @@ def main():
             checkpoint = torch.load(args.resume)
             args.start_epoch = checkpoint['epoch']
             model.load_state_dict(checkpoint['state_dict'])
-            print("=> loaded checkpoint '{}' (epoch {})"
-                  .format(args.resume, checkpoint['epoch']))
+            print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     cudnn.benchmark = True
 
     # load image
-    train_loader = load_image(args.train_list, transforms.Compose(
-        [transforms.RandomCrop(128), transforms.RandomHorizontalFlip(), transforms.ToTensor(), ]), True, True)
+    train_loader = load_image(args.train_list,
+                              transforms.Compose(
+                                [transforms.RandomCrop(128),
+                                    transforms.RandomHorizontalFlip(),
+                                transforms.ToTensor(), ])
+                              , True, True)
 
-    val_loader = load_image(args.val_list, transforms.Compose([transforms.CenterCrop(128), transforms.ToTensor(), ]),
+    val_loader = load_image(args.val_list,
+                            transforms.Compose([transforms.CenterCrop(128), transforms.ToTensor(), ]),
                             False, True)
-
-    # define loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
 
     if args.cuda:
         criterion.cuda()
@@ -137,19 +140,16 @@ def create_model_parameters(args, model):
     return params
 
 
-def create_model():
-    # create Light CNN
+def create_model(end2end=True):
     if args.model == 'LightCNN-9':
-        model = LightCNN_9Layers(num_classes=args.num_classes)
-    elif args.model == 'LightCNN-29':
-        model = LightCNN_29Layers(num_classes=args.num_classes)
+        model = LightCNN_9Layers(end2end, num_classes=args.num_classes)
     elif args.model == 'LightCNN-29v2':
-        model = LightCNN_29Layers_v2(num_classes=args.num_classes)
+        model = LightCNN_29Layers_v2(end2end, num_classes=args.num_classes)
     else:
         print('Error model type\n')
     if args.cuda:
         model = torch.nn.DataParallel(model).cuda()
-    print(model)
+    # print(model)
     return model
 
 
