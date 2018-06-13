@@ -99,7 +99,7 @@ class network_9layers(nn.Module):
         feature = F.dropout(feature, p=0.7, training=self.training)
         pred_score = self.fc2(feature)
 
-        return pred_score, feature
+        return pred_score
 
 class network_29layers(nn.Module):
     def __init__(self, block, layers, num_classes=79077):

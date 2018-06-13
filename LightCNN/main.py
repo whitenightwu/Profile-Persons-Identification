@@ -7,8 +7,6 @@ from __future__ import print_function
 
 import argparse
 import os
-import shutil
-import time
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -58,15 +56,32 @@ parser.add_argument('--num_classes', default=4382, type=int,
 parser.add_argument('--end2end', action='store_true',
                     help='if true, using end2end with dream block, else, using naive architecture')
 
+
 def main():
     global args
     args = parser.parse_args()
 
+    print('dataset:', args.root_path)
+    print('end2end?:', args.end2end)
+
+    # load image
+    train_loader = load_image(args.train_list,
+                              transforms.Compose(
+                                  [transforms.CenterCrop(128),
+                                   transforms.RandomHorizontalFlip(),
+                                   transforms.ToTensor(), ])
+                              , True, True)
+
+    val_loader = load_image(args.val_list,
+                            transforms.Compose([transforms.CenterCrop(128), transforms.ToTensor(), ]),
+                            False, True)
+
+    # prepare model
     model = create_model(args.end2end)
     params = create_model_parameters(args, model)
 
+    criterion = nn.CrossEntropyLoss().cuda()  # loss function
     optimizer = torch.optim.SGD(params, args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    criterion = nn.CrossEntropyLoss()   # loss function
 
     # optionally resume from a checkpoint
     if args.resume:
@@ -80,21 +95,6 @@ def main():
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     cudnn.benchmark = True
-
-    # load image
-    train_loader = load_image(args.train_list,
-                              transforms.Compose(
-                                [transforms.RandomCrop(128),
-                                    transforms.RandomHorizontalFlip(),
-                                transforms.ToTensor(), ])
-                              , True, True)
-
-    val_loader = load_image(args.val_list,
-                            transforms.Compose([transforms.CenterCrop(128), transforms.ToTensor(), ]),
-                            False, True)
-
-    if args.cuda:
-        criterion.cuda()
 
     validate(val_loader, model, criterion)
 
@@ -144,9 +144,9 @@ def create_model_parameters(args, model):
 
 def create_model(end2end=True):
     if args.model == 'LightCNN-9':
-        model = LightCNN_9Layers(num_classes=args.num_classes, end2end=True)
+        model = LightCNN_9Layers(num_classes=args.num_classes, end2end=end2end)
     elif args.model == 'LightCNN-29v2':
-        model = LightCNN_29Layers_v2(end2end, num_classes=args.num_classes)
+        model = LightCNN_29Layers_v2(num_classes=args.num_classes, end2end=end2end)
     else:
         print('Error model type\n')
     if args.cuda:

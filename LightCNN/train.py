@@ -29,16 +29,15 @@ def train(train_loader, model, criterion, optimizer, epoch, print_freq):
     for i, (input, target, yaw) in enumerate(train_loader):
         data_time.update(time.time() - end) # measure data loading time
 
-        target = target.cuda()
+        target = target.cuda(async=True)
         yaw = yaw.float().cuda(async=True)
-        input = input.cuda()
         input_var = torch.autograd.Variable(input)
         yaw_var = torch.autograd.Variable(yaw)
         target_var = torch.autograd.Variable(target)
 
         # compute output
-        output, _ = model(input_var, yaw_var)
-        loss = criterion(output, target_var)
+        output = model(input_var, yaw_var)
+        loss = criterion(output, target_var.long())
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
@@ -79,14 +78,14 @@ def validate(val_loader, model, criterion):
     for i, (input, target, yaw) in enumerate(val_loader):
         input = input.cuda()
         target = target.cuda()
-        yaw = yaw.float().cuda(async=True)
+        yaw = yaw.float().cuda()
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
         yaw_var = torch.autograd.Variable(yaw)
 
         # compute output
-        output, _ = model(input_var, yaw_var)
-        loss = criterion(output, target_var)
+        output = model(input_var, yaw_var)
+        loss = criterion(output, target_var.long())
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
