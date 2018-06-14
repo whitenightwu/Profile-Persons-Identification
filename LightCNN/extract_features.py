@@ -32,20 +32,21 @@ parser.add_argument('--img_list', default='', type=str, metavar='PATH',
                     help='list of face images for feature extraction (default: none).')
 parser.add_argument('--save_path', default='', type=str, metavar='PATH',
                     help='save root path for features of face images.')
-parser.add_argument('--num_classes', default=79077, type=int,
+parser.add_argument('--num_classes', default=4382, type=int,
                     metavar='N', help='mini-batch size (default: 79077)')
-
+parser.add_argument('--end2end', action='store_true',
+                    help='if true, using end2end with dream block, else, using naive architecture')
 
 def main():
     global args
     args = parser.parse_args()
 
     if args.model == 'LightCNN-9':
-        model = LightCNN_9Layers(num_classes=args.num_classes)
+        model = LightCNN_9Layers(num_classes=args.num_classes, end2end=args.end2end)
     elif args.model == 'LightCNN-29':
-        model = LightCNN_29Layers(num_classes=args.num_classes)
+        model = LightCNN_29Layers(num_classes=args.num_classes, end2end=args.end2end)
     elif args.model == 'LightCNN-29v2':
-        model = LightCNN_29Layers_v2(num_classes=args.num_classes)
+        model = LightCNN_29Layers_v2(num_classes=args.num_classes, end2end=args.end2end)
     else:
         print('Error model type\n')
 
@@ -65,7 +66,9 @@ def main():
     transform = transforms.Compose([transforms.ToTensor()])
     count = 0
     input = torch.zeros(1, 1, 128, 128)
-    for img_name in img_list:
+
+    for line in img_list:
+        id, img_name, yaw = line.split('\t')
         count = count + 1
         img = cv2.imread(os.path.join(args.root_path, img_name), cv2.IMREAD_GRAYSCALE)
         img = cv2.resize(img, (128, 128), interpolation = cv2.INTER_AREA)
@@ -76,11 +79,17 @@ def main():
         start = time.time()
         if args.cuda:
             input = input.cuda()
+            yaw = yaw.float().cuda(async=True)
+
         input_var = torch.autograd.Variable(input, volatile=True)
-        _, features = model(input_var)
+        yaw_var = torch.autograd.Variable(yaw, volatile=True)
+
+        output = model(input_var, yaw_var)
+        output_data = output.cpu().data.numpy()
+        print(output_data)
         end = time.time() - start
         print("{}({}/{}). Time: {}".format(os.path.join(args.root_path, img_name), count, len(img_list), end))
-        save_feature(args.save_path, img_name, features.data.cpu().numpy()[0])
+        #save_feature(args.save_path, img_name, features.data.cpu().numpy()[0])
 
 
 def read_list(list_path):
