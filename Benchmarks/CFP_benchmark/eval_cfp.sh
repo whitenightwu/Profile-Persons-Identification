@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 data_dir=data
 if [ ! -d $data_dir ]; then
     mkdir $data_dir
