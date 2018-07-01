@@ -7,7 +7,6 @@ from scipy.optimize import fsolve
 from sklearn import metrics
 
 
-# {{{ draw roc curve
 def draw_roc(fpr, tpr, title, img_name="roc.png"):
     plt.figure(figsize=(16, 8))
     plt.yticks(np.arange(0.0, 1.05, 0.05))
@@ -29,8 +28,6 @@ def draw_multiple_roc(tprs, fprs, labels, title, img_name):
     plt.title(title)
     plt.savefig(img_name)
 
-
-# }}}
 
 def load_feat(feat_file):
     feats = list()
@@ -77,13 +74,17 @@ def eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats):
                 scores.append(score)
                 labels.append(label)
     fpr, tpr, thresholds = metrics.roc_curve(labels, scores)
+<<<<<<< HEAD
     draw_roc(fpr,tpr,pair_type)
+=======
+    draw_roc(fpr, tpr)
+>>>>>>> 08a710182bdde5ecbeb5dbba94b7b35fb8585513
     auc = metrics.auc(fpr, tpr)
     eer = calc_eer(fpr, tpr)
     return auc, eer
 
 
-def eval_roc_main(dataset):
+def eval_roc_main():
     frontal_feat_file = './frontal_feat.bin'
     profile_feat_file = './profile_feat.bin'
 
@@ -102,7 +103,7 @@ def eval_roc_main(dataset):
             split_name = str(split_id + 1)
             if len(split_name) < 2: split_name = '0' + split_name
             auc, eer = eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats)
-            print('{} split {}, auc: {}, eer: {}'.format(pair_type,split_name,auc,eer))
+            print('{} split {}, auc: {}, eer: {}'.format(pair_type, split_name, auc, eer))
             aucs.append(auc)
             eers.append(eer)
         print('Average auc:', np.mean(aucs))

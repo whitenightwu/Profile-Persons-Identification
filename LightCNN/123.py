@@ -96,24 +96,8 @@ def main():
 
     cudnn.benchmark = True
 
-    validate(val_loader, model, criterion)
+    print(validate(val_loader, model, criterion))
 
-    for epoch in range(args.start_epoch, args.epochs):
-        adjust_learning_rate(optimizer, epoch)
-
-        # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, args.print_freq)
-
-        # evaluate on validation set
-        prec1 = validate(val_loader, model, criterion)
-
-        save_name = args.save_path + 'lightCNN_' + str(epoch + 1) + '_checkpoint.pth.tar'
-        save_checkpoint({
-            'epoch': epoch + 1,
-            'arch': args.arch,
-            'state_dict': model.state_dict(),
-            'prec1': prec1,
-        }, save_name)
 
 
 def load_image(fileList, transforms, shuffle=True, pin_memory=True):
