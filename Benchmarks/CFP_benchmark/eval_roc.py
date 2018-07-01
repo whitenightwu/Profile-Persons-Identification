@@ -77,7 +77,7 @@ def eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats):
                 scores.append(score)
                 labels.append(label)
     fpr, tpr, thresholds = metrics.roc_curve(labels, scores)
-    draw_roc(fpr,tpr)
+    draw_roc(fpr,tpr,pair_type)
     auc = metrics.auc(fpr, tpr)
     eer = calc_eer(fpr, tpr)
     return auc, eer
