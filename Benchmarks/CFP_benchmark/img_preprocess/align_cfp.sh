@@ -1,7 +1,7 @@
 # prepare CFP data first
-dst_dir=/home/u0060/Datasets/cfp-dataset/
-list_file_name=/home/u0060/Datasets/cfp-dataset/Data/list_name.txt
-dst_file_name=align_img_list.txt
+dst_dir=../../data/CFP
+list_file_name=/mnt/SSD/rongyu/data/cfp/cfp_dataset/Data/list_name.txt
+dst_file_name=white-align_img_list.txt
 python pre_cfp_data.py $dst_dir $list_file_name $dst_file_name
 
 

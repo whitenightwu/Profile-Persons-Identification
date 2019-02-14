@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import struct as st
 
 import matplotlib.pyplot as plt
@@ -74,24 +75,29 @@ def eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats):
                 scores.append(score)
                 labels.append(label)
     fpr, tpr, thresholds = metrics.roc_curve(labels, scores)
-<<<<<<< HEAD
-    draw_roc(fpr,tpr,pair_type)
-=======
-    draw_roc(fpr, tpr)
->>>>>>> 08a710182bdde5ecbeb5dbba94b7b35fb8585513
+# <<<<<<< HEAD
+#     draw_roc(fpr,tpr,pair_type)
+# =======
+#     draw_roc(fpr, tpr)
+# >>>>>>> 08a710182bdde5ecbeb5dbba94b7b35fb8585513
     auc = metrics.auc(fpr, tpr)
     eer = calc_eer(fpr, tpr)
     return auc, eer
 
 
 def eval_roc_main():
-    frontal_feat_file = './frontal_feat.bin'
-    profile_feat_file = './profile_feat.bin'
+    frontal_feat_file = '/home/ydwu/tmp/gen_bin/frontal_feat.bin'
+    profile_feat_file = '/home/ydwu/tmp/gen_bin/profile_feat.bin'
 
     frontal_feats = load_feat(frontal_feat_file)
     profile_feats = load_feat(profile_feat_file)
 
-    protocol_dir = '/mnt/SSD/rongyu/data/cfp/cfp_align/protocol/Split'
+
+    white_feat_file = '/home/ydwu/models/ext_feat.bin'
+    white_profile_feats = load_feat(white_feat_file)
+    # frontal_feats = profile_feats
+
+    protocol_dir = '/home/ydwu/datasets/cfp-dataset/Protocol/Split'
     pair_types = ['FF', 'FP']
     split_num = 10
 
