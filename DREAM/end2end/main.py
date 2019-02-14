@@ -1,6 +1,5 @@
 import argparse
-import os
-import shutil
+import os,sys,shutil
 import time
 
 import torch
@@ -9,7 +8,9 @@ import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
 import torch.utils.data
-# import transforms
+import torch.nn.functional as F
+#import transforms
+import torchvision.datasets as datasets
 import torchvision.models as models
 import torchvision.transforms as transforms
 from ResNet import resnet18, resnet50, resnet101
@@ -21,19 +22,19 @@ model_names = sorted(name for name in models.__dict__
 
 parser = argparse.ArgumentParser(description='PyTorch CelebA Training')
 parser.add_argument('--img_dir', metavar='DIR', default='', help='path to dataset')
-parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18', choices=model_names,
+parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet50', choices=model_names,
                     help='model architecture: ' +
-                         ' | '.join(model_names) +
-                         ' (default: alexnet)')
-parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
+                        ' | '.join(model_names) +
+                        ' (default: alexnet)')
+parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=60, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=256, type=int,
+parser.add_argument('-b', '--batch-size', default=20, type=int,
                     metavar='N', help='mini-batch size (default: 256)')
-parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
+parser.add_argument('--lr', '--learning-rate', default=0.03, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
@@ -43,16 +44,20 @@ parser.add_argument('--print-freq', '-p', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
+
+# parser.add_argument('--resume', default='/home/ydwu/project3/DREAM/src/end2end', type=str, metavar='PATH',
+#                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--pretrained', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
-parser.add_argument('--model_dir', '-m', default='./model', type=str)
-parser.add_argument('--end2end', action='store_true', \
-                    help='if true, using end2end with dream block, else, using naive architecture')
+parser.add_argument('--model_dir','-m', default='./model', type=str)
+parser.add_argument('--end2end', action='store_true',\
+        help='if true, using end2end with dream block, else, using naive architecture')
 
 best_prec1 = 0
 
+print("yyyy-white = ", torch.cuda.device_count())
 
 def main():
     global args, best_prec1
@@ -62,8 +67,8 @@ def main():
     print('end2end?:', args.end2end)
 
     # load data and prepare dataset
-    train_list_file = '/home/u0060/Datasets/msceleb_subset/train_list.txt'
-    train_label_file = '/home/u0060/Datasets/msceleb_subset/train_label.txt'
+    train_list_file = '../../data/msceleb/train_list.txt'
+    train_label_file = '../../data/msceleb/train_label.txt'
     caffe_crop = CaffeCrop('train')
     train_dataset = MsCelebDataset(args.img_dir, train_list_file, train_label_file,
                                    transforms.Compose([caffe_crop, transforms.ToTensor()]))
@@ -73,16 +78,16 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     caffe_crop = CaffeCrop('test')
-    val_list_file = '/home/u0060/Datasets/msceleb_subset/test_list.txt'
-    val_label_file = '/home/u0060/Datasets/msceleb_subset/test_label.txt'
-    val_dataset = MsCelebDataset(args.img_dir, val_list_file, val_label_file,
-                                 transforms.Compose([caffe_crop, transforms.ToTensor()]))
+    val_list_file = '../../data/msceleb/test_list.txt'
+    val_label_file = '../../data/msceleb/test_label.txt'
+    val_dataset =  MsCelebDataset(args.img_dir, val_list_file, val_label_file, 
+            transforms.Compose([caffe_crop,transforms.ToTensor()]))
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
-    assert (train_dataset.max_label == val_dataset.max_label)
+    assert(train_dataset.max_label == val_dataset.max_label)
     class_num = train_dataset.max_label + 1
 
     print('class_num: ', class_num)
@@ -96,10 +101,13 @@ def main():
         model = resnet50(pretrained=False, num_classes=class_num, end2end=args.end2end)
     if args.arch == 'resnet101':
         model = resnet101(pretrained=False, num_classes=class_num, end2end=args.end2end)
-    model = torch.nn.DataParallel(model).cuda()
+    # model = torch.nn.DataParallel(model).cuda()
+    
 
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
+    # criterion = nn.CrossEntropyLoss()
+
 
     optimizer = torch.optim.SGD(model.parameters(), args.lr,
                                 momentum=args.momentum,
@@ -172,8 +180,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda(async=True)
-        yaw = yaw.float().cuda(async=True)
+        # target = target.cuda(async=True)
+        # yaw = yaw.float().cuda(async=True)
+        
+        # target = target.cuda(async=True)
+        yaw = yaw.float()#.cuda(async=True)
+        
         input_var = torch.autograd.Variable(input)
         yaw_var = torch.autograd.Variable(yaw)
         target_var = torch.autograd.Variable(target)
@@ -185,9 +197,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(pred_score.data, target, topk=(1, 5))
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
+        # losses.update(loss.data[0], input.size(0))
+        # top1.update(prec1[0], input.size(0))
+        # top5.update(prec5[0], input.size(0))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
+        top5.update(prec5.item(), input.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -205,8 +220,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                epoch, i, len(train_loader), batch_time=batch_time,
-                data_time=data_time, loss=losses, top1=top1, top5=top5))
+                   epoch, i, len(train_loader), batch_time=batch_time,
+                   data_time=data_time, loss=losses, top1=top1, top5=top5))
 
 
 def validate(val_loader, model, criterion):
@@ -222,8 +237,12 @@ def validate(val_loader, model, criterion):
 
     end = time.time()
     for i, (input, target, yaw) in enumerate(val_loader):
-        target = target.cuda(async=True)
-        yaw = yaw.float().cuda(async=True)
+        # target = target.cuda(async=True)
+        # yaw = yaw.float().cuda(async=True)
+
+        # target = target.cuda(async=True)
+        yaw = yaw.float()#.cuda(async=True)
+
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
         yaw_var = torch.autograd.Variable(yaw)
@@ -235,9 +254,13 @@ def validate(val_loader, model, criterion):
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(pred_score.data, target, topk=(1, 5))
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
+        # losses.update(loss.data[0], input.size(0))
+        # top1.update(prec1[0], input.size(0))
+        # top5.update(prec5[0], input.size(0))
+        
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
+        top5.update(prec5.item(), input.size(0))
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -249,8 +272,8 @@ def validate(val_loader, model, criterion):
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                i, len(val_loader), batch_time=batch_time, loss=losses,
-                top1=top1, top5=top5))
+                   i, len(val_loader), batch_time=batch_time, loss=losses, 
+                   top1=top1, top5=top5))
 
     print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
           .format(top1=top1, top5=top5))
