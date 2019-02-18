@@ -1,0 +1,1 @@
+we need to use facenet project("https://github.com/whitenightwu/facenet.git")
