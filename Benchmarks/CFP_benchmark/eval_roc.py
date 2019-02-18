@@ -86,14 +86,14 @@ def eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats):
 
 
 def eval_roc_main():
-    frontal_feat_file = '/home/ydwu/tmp/gen_bin/frontal_feat.bin'
-    profile_feat_file = '/home/ydwu/tmp/gen_bin/profile_feat.bin'
+    frontal_feat_file = '/home/ydwu/tmp/gen_bin/add_frontal_feat.bin'#frontal_feat.bin'
+    profile_feat_file = '/home/ydwu/tmp/gen_bin/add_profile_feat.bin'#profile_feat.bin'
 
     frontal_feats = load_feat(frontal_feat_file)
     profile_feats = load_feat(profile_feat_file)
 
 
-    white_feat_file = '/home/ydwu/models/ext_feat.bin'
+    white_feat_file = '/home/ydwu/tmp/gen_bin/add_frontal_feat.bin'#'/home/ydwu/models/ext_feat.bin'
     white_profile_feats = load_feat(white_feat_file)
     # frontal_feats = profile_feats
 
