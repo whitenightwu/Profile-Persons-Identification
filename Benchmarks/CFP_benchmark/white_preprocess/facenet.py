@@ -264,25 +264,35 @@ def ydwu_load_data(image_paths, do_random_crop, do_random_flip, image_size, my_h
     pose_array = np.zeros((nrof_samples, 3))
 
     for i in range(nrof_samples):
-        tmp_img = misc.imread(image_paths[i])
-        img = cv2.resize(tmp_img, (160,160), interpolation=cv2.INTER_CUBIC)
-        if img.ndim == 2:
-            img = to_rgb(img)
-        if do_prewhiten:
-            img = prewhiten(img)
-        img = crop(img, do_random_crop, image_size)
-        img = flip(img, do_random_flip)
+        try:
+                tmp_img = misc.imread(image_paths[i])
+                img = cv2.resize(tmp_img, (160,160), interpolation=cv2.INTER_CUBIC)
+                if img.ndim == 2:
+                    img = to_rgb(img)
+                if do_prewhiten:
+                    img = prewhiten(img)
+                img = crop(img, do_random_crop, image_size)
+                img = flip(img, do_random_flip)
+         
+                roll = my_head_pose_estimator.return_roll(img)  # Evaluate the roll angle using a CNN
+                pitch = my_head_pose_estimator.return_pitch(img)  # Evaluate the pitch angle using a CNN
+                yaw = my_head_pose_estimator.return_yaw(img)  # Evaluate the yaw angle using a CNN
+         
+                pose_array[i,:] = [roll[0, 0, 0], pitch[0, 0, 0], yaw[0, 0, 0]]
+                # print(
+                #     "Estimated [roll, pitch, yaw] ..... [" + str(roll[0, 0, 0]) + "," + str(pitch[0, 0, 0]) + "," + str(
+                #         yaw[0, 0, 0]) + "]")
+         
+                images[i,:,:,:] = img
 
-        roll = my_head_pose_estimator.return_roll(img)  # Evaluate the roll angle using a CNN
-        pitch = my_head_pose_estimator.return_pitch(img)  # Evaluate the pitch angle using a CNN
-        yaw = my_head_pose_estimator.return_yaw(img)  # Evaluate the yaw angle using a CNN
+            
+        except TypeError:
+            print("white")
+            print(image_paths[i])
+            pass
+        continue
 
-        pose_array[i,:] = [roll[0, 0, 0], pitch[0, 0, 0], yaw[0, 0, 0]]
-        # print(
-        #     "Estimated [roll, pitch, yaw] ..... [" + str(roll[0, 0, 0]) + "," + str(pitch[0, 0, 0]) + "," + str(
-        #         yaw[0, 0, 0]) + "]")
-
-        images[i,:,:,:] = img
+        
     return images, pose_array
 
 

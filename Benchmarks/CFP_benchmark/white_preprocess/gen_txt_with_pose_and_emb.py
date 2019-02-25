@@ -104,7 +104,7 @@ def main(args):
 
                 aaa = pose.tolist()
                 bbb = embed.tolist()
-                ff = open('/home/ydwu/project3/pose_and_emb.txt', 'a')
+                ff = open('/home/ydwu/project3/tmp_pose_and_emb.txt', 'a')
 
 
                 # for jj in range(i * batch_size, n):
@@ -112,12 +112,16 @@ def main(args):
                     # ff.write(img_name[jj] + ' ')
 
                 for jj in range(len(ydwu_image_list)):
-                    # ydwu_class = str(ydwu_image_list[jj]).split("/")[-2]
-                    # ydwu_img = str(ydwu_image_list[jj]).split("/")[-1]
+                    # # ydwu_class = str(ydwu_image_list[jj]).split("/")[-2]
+                    # # ydwu_img = str(ydwu_image_list[jj]).split("/")[-1]
+                    # ff.write(str(ydwu_image_list[jj]).split("/")[-2] + ' ')
+                    # ff.write(str(ydwu_image_list[jj]).split("/")[-1] + ' ')
+                    # ff.write(str(aaa[jj]).strip('[').strip(']').replace(',', '') + ' ')
+                    # ff.write(str(bbb[jj]).strip('[').strip(']').replace(',', '') + '\n')
                     ff.write(str(ydwu_image_list[jj]).split("/")[-2] + ' ')
                     ff.write(str(ydwu_image_list[jj]).split("/")[-1] + ' ')
-                    ff.write(str(aaa[jj]).strip('[').strip(']').replace(',', '') + ' ')
-                    ff.write(str(bbb[jj]).strip('[').strip(']').replace(',', '') + '\n')
+                    ff.write(str(aaa[jj]) + ' ')
+                    ff.write(str(bbb[jj]) + '\n')
 
                 ff.close()
 
@@ -164,14 +168,14 @@ def main(args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_dir', type=str,
-                        default='/home/ydwu/project3/zihui_DREAM/preprocess/squeezenet',
+                        default='/home/ydwu/project3/00-del/squeezenet',
         help='Directory containing the meta_file and ckpt_file')
 
     parser.add_argument('--data_dir', type=str,
-                        default = '/media/ydwu/Document/Datasets/white-ms1mclean',
+                        default = '/home/ydwu/project3/00-del/white-lfw',
         help='Directory containing images. If images are not already aligned and cropped include --is_aligned False.')
     #default='/home/ydwu/project3/zihui_DREAM/preprocess/white-lfw',
-    # default = '/home/ydwu/datasets/white-lfw',
+    # default = '/home/ydwu/project3/00-del/white-lfw',
     # default = '/media/ydwu/Document/Datasets/white-ms1mclean',
 
     parser.add_argument('--image_size', type=int,
