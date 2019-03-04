@@ -86,16 +86,21 @@ def eval_roc(protocol_dir, pair_type, split_name, frontal_feats, profile_feats):
 
 
 def eval_roc_main():
-    frontal_feat_file = '/home/ydwu/tmp/gen_bin/add_frontal_feat.bin'#frontal_feat.bin'
-    profile_feat_file = '/home/ydwu/tmp/gen_bin/add_profile_feat.bin'#profile_feat.bin'
+    ## v1 head-pose
+    # frontal_feat_file = '/home/ydwu/tmp/gen_bin/frontal_feat.bin'#add_frontal_feat.bin'#frontal_feat.bin'
+    # profile_feat_file = '/home/ydwu/tmp/gen_bin/profile_feat.bin'#add_profile_feat.bin'#profile_feat.bin'
+
+    ## v2 head-pose
+    frontal_feat_file = '/home/ydwu/project3/add_frontal_feat.bin'#frontal_feat.bin'
+    profile_feat_file = '/home/ydwu/project3/add_profile_feat.bin'#profile_feat.bin'
 
     frontal_feats = load_feat(frontal_feat_file)
     profile_feats = load_feat(profile_feat_file)
 
 
-    white_feat_file = '/home/ydwu/tmp/gen_bin/add_frontal_feat.bin'#'/home/ydwu/models/ext_feat.bin'
-    white_profile_feats = load_feat(white_feat_file)
-    # frontal_feats = profile_feats
+    # white_feat_file = '/home/ydwu/tmp/gen_bin/add_frontal_feat.bin'#'/home/ydwu/models/ext_feat.bin'
+    # white_profile_feats = load_feat(white_feat_file)
+    # # frontal_feats = profile_feats
 
     protocol_dir = '/home/ydwu/datasets/cfp-dataset/Protocol/Split'
     pair_types = ['FF', 'FP']

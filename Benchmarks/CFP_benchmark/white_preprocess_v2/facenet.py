@@ -330,12 +330,14 @@ def ydwu_load_data_gpu(image_paths, do_random_crop, do_random_flip, image_size, 
     nrof_samples = len(image_paths)
     images = np.zeros((nrof_samples, image_size, image_size, 3))
     # pose_array = []
-    pose_array = np.zeros((nrof_samples, 3))
+    pose_array = np.zeros((nrof_samples, 1))
 
     idx_tensor = [idx for idx in xrange(66)]
     idx_tensor = torch.FloatTensor(idx_tensor).cuda(0)
 
     for i in range(nrof_samples):
+
+
         try:
             tmp_img = misc.imread(image_paths[i])
 
@@ -356,17 +358,17 @@ def ydwu_load_data_gpu(image_paths, do_random_crop, do_random_flip, image_size, 
             roll_predicted = F.softmax(roll)
             # Get continuous predictions in degrees.
             yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
-            pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
-            roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
+            # pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
+            # roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
             # Print new frame with cube and axis
 
             yaw_coor = yaw_predicted.cpu().numpy()
-            pitch_coor = pitch_predicted.cpu().numpy()
-            roll_coor = roll_predicted.cpu().numpy()
+            # pitch_coor = pitch_predicted.cpu().numpy()
+            # roll_coor = roll_predicted.cpu().numpy()
 
-            pose_array[i, :] = [roll_coor, pitch_coor, yaw_coor]
-
+            # pose_array[i, :] = [roll_coor, pitch_coor, yaw_coor]
+            pose_array[i, :] = [yaw_coor]
         except ValueError:
             print("white")
             print(image_paths[i])
